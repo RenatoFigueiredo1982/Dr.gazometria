@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Gasometria Arterial</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f9fc;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        
+        .calculator-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        label {
+            width: 200px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            flex: 1;
+            max-width: 150px;
+        }
+        
+        select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            flex: 1;
+            max-width: 170px;
+        }
+        
+        .unit {
+            margin-left: 10px;
+            color: #7f8c8d;
+        }
+        
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 15px;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .results {
+            margin-top: 30px;
+            background-color: #e8f4fc;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 5px solid #3498db;
+        }
+        
+        .result-item {
+            margin-bottom: 10px;
+        }
+        
+        .interpretation {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 5px solid #2ecc71;
+        }
+        
+        .alert {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        
+        .normal {
+            color: #2ecc71;
+        }
+        
+        .warning {
+            color: #f39c12;
+        }
+        
+        @media (max-width: 600px) {
+            .input-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            label {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+            
+            input, select {
+                max-width: 100%;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Calculadora de Gasometria Arterial</h1>
+    
+    <div class="calculator-container">
+        <div class="input-group">
+            <label for="ph">pH:</label>
+            <input type="number" id="ph" step="0.01" min="6.5" max="8.0" value="7.40">
+            <span class="unit">(7.35-7.45)</span>
+        </div>
+        
+        <div class="input-group">
+            <label for="pco2">PaCO₂:</label>
+            <input type="number" id="pco2" step="0.1" min="10" max="100" value="40">
+            <span class="unit">mmHg (35-45)</span>
+        </div>
+        
+        <div class="input-group">
+            <label for="hco3">HCO₃⁻:</label>
+            <input type="number" id="hco3" step="0.1" min="10" max="50" value="24">
+            <span class="unit">mEq/L (22-26)</span>
+        </div>
+        
+        <div class="input-group">
+            <label for="na">Na⁺:</label>
+            <input type="number" id="na" step="0.1" min="110" max="160" value="140">
+            <span class="unit">mEq/L (135-145)</span>
+        </div>
+        
+        <div class="input-group">
+            <label for="cl">Cl⁻:</label>
+            <input type="number" id="cl" step="0.1" min="80" max="120" value="104">
+            <span class="unit">mEq/L (98-106)</span>
+        </div>
+        
+        <div class="input-group">
+            <label for="glucose">Glicemia:</label>
+            <input type="number" id="glucose" min="20" max="1000" value="100">
+            <span class="unit">mg/dL (70-99)</span>
+        </div>
+        
+        <div class="input-group">
+            <label for="lactato">Lactato:</label>
+            <input type="number" id="lactato" step="0.1" min="0.5" max="20" value="1.0">
+            <span class="unit">mmol/L (0.5-2.2)</span>
+        </div>
+        
+        <div class="input-group">
+            <label for="temperature">Temperatura:</label>
+            <input type="number" id="temperature" min="30" max="42" value="37">
+            <span class="unit">°C</span>
+        </div>
+        
+        <div class="input-group">
+            <label for="fio2">FiO₂:</label>
+            <input type="number" id="fio2" min="21" max="100" value="21">
+            <span class="unit">% (ar ambiente = 21%)</span>
+        </div>
+        
+        <button id="calculate-btn">Calcular Gasometria</button>
+        
+        <div id="results" class="results" style="display: none;">
+            <h2>Resultados</h2>
+            <div id="result-content"></div>
+            
+            <div id="interpretation" class="interpretation">
+                <h3>Interpretação</h3>
+                <div id="interpretation-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('calculate-btn').addEventListener('click', function() {
+            // Obter valores de entrada
+            const ph = parseFloat(document.getElementById('ph').value);
+            const pco2 = parseFloat(document.getElementById('pco2').value);
+            const hco3 = parseFloat(document.getElementById('hco3').value);
+            const na = parseFloat(document.getElementById('na').value);
+            const cl = parseFloat(document.getElementById('cl').value);
+            const glucose = parseFloat(document.getElementById('glucose').value);
+            const lactato = parseFloat(document.getElementById('lactato').value);
+            const temperature = parseFloat(document.getElementById('temperature').value);
+            const fio2 = parseFloat(document.getElementById('fio2').value);
+            
+            // 1. Avaliação do estado ácido-base
+            let acidBaseStatus = '';
+            let respiratoryComponent = '';
+            let metabolicComponent = '';
+            
+            if (ph < 7.35) {
+                acidBaseStatus = 'Acidemia';
+            } else if (ph > 7.45) {
+                acidBaseStatus = 'Alcalemia';
+            } else {
+                acidBaseStatus = 'pH normal';
+            }
+            
+            // Avaliação do componente respiratório
+            if (pco2 < 35 && ph > 7.45) {
+                respiratoryComponent = 'Alcalose respiratória';
+            } else if (pco2 < 35 && ph <= 7.45) {
+                respiratoryComponent = 'Compensação respiratória para acidose metabólica';
+            } else if (pco2 > 45 && ph < 7.35) {
+                respiratoryComponent = 'Acidose respiratória';
+            } else if (pco2 > 45 && ph >= 7.35) {
+                respiratoryComponent = 'Compensação respiratória para alcalose metabólica';
+            } else {
+                respiratoryComponent = 'PaCO₂ normal';
+            }
+            
+            // Avaliação do componente metabólico
+            if (hco3 < 22 && ph < 7.35) {
+                metabolicComponent = 'Acidose metabólica';
+            } else if (hco3 < 22 && ph >= 7.35) {
+                metabolicComponent = 'Compensação metabólica para alcalose respiratória';
+            } else if (hco3 > 26 && ph > 7.45) {
+                metabolicComponent = 'Alcalose metabólica';
+            } else if (hco3 > 26 && ph <= 7.45) {
+                metabolicComponent = 'Compensação metabólica para acidose respiratória';
+            } else {
+                metabolicComponent = 'HCO₃⁻ normal';
+            }
+            
+            // 2. Cálculo do Ânion Gap
+            const anionGap = na - (cl + hco3);
+            let anionGapInterpretation = '';
+            
+            if (anionGap < 8) {
+                anionGapInterpretation = 'Ânion gap baixo';
+            } else if (anionGap >= 8 && anionGap <= 12) {
+                anionGapInterpretation = 'Ânion gap normal';
+            } else if (anionGap > 12 && anionGap <= 20) {
+                anionGapInterpretation = 'Ânion gap elevado moderado';
+            } else {
+                anionGapInterpretation = 'Ânion gap elevado significativo';
+            }
+            
+            // 3. Delta Ratio para avaliação de distúrbios mistos
+            const deltaRatio = (anionGap - 12) / (24 - hco3);
+            let deltaRatioInterpretation = '';
+            
+            if (isNaN(deltaRatio) {
+                deltaRatioInterpretation = 'Não aplicável';
+            } else if (deltaRatio < 0.4) {
+                deltaRatioInterpretation = 'Alcalose metabólica concomitante';
+            } else if (deltaRatio >= 0.4 && deltaRatio <= 0.8) {
+                deltaRatioInterpretation = 'Acidose metabólica pura';
+            } else if (deltaRatio > 0.8 && deltaRatio < 2.0) {
+                deltaRatioInterpretation = 'Acidose metabólica mista (gap + não-gap)';
+            } else {
+                deltaRatioInterpretation = 'Alcalose metabólica concomitante ou fase tardia';
+            }
+            
+            // 4. Cálculo do HCO3 esperado para compensação
+            let expectedHco3 = '';
+            let compensationStatus = '';
+            
+            if (respiratoryComponent.includes('Acidose respiratória')) {
+                // Aguda: HCO3 aumenta 1 mEq/L para cada 10 mmHg de aumento na PaCO2
+                // Crônica: HCO3 aumenta 4 mEq/L para cada 10 mmHg de aumento na PaCO2
+                const acuteHco3 = 24 + ((pco2 - 40) / 10) * 1;
+                const chronicHco3 = 24 + ((pco2 - 40) / 10) * 4;
+                
+                expectedHco3 = `Agudo: ~${acuteHco3.toFixed(1)} mEq/L, Crônico: ~${chronicHco3.toFixed(1)} mEq/L`;
+                
+                if (hco3 >= (acuteHco3 - 1) && hco3 <= (acuteHco3 + 1)) {
+                    compensationStatus = 'Compensação aguda adequada';
+                } else if (hco3 >= (chronicHco3 - 2) && hco3 <= (chronicHco3 + 2)) {
+                    compensationStatus = 'Compensação crônica adequada';
+                } else {
+                    compensationStatus = 'Distúrbio metabólico concomitante';
+                }
+            } else if (respiratoryComponent.includes('Alcalose respiratória')) {
+                // Aguda: HCO3 diminui 2 mEq/L para cada 10 mmHg de diminuição na PaCO2
+                // Crônica: HCO3 diminui 5 mEq/L para cada 10 mmHg de diminuição na PaCO2
+                const acuteHco3 = 24 + ((pco2 - 40) / 10) * 2;
+                const chronicHco3 = 24 + ((pco2 - 40) / 10) * 5;
+                
+                expectedHco3 = `Agudo: ~${acuteHco3.toFixed(1)} mEq/L, Crônico: ~${chronicHco3.toFixed(1)} mEq/L`;
+                
+                if (hco3 >= (acuteHco3 - 1) && hco3 <= (acuteHco3 + 1)) {
+                    compensationStatus = 'Compensação aguda adequada';
+                } else if (hco3 >= (chronicHco3 - 2) && hco3 <= (chronicHco3 + 2)) {
+                    compensationStatus = 'Compensação crônica adequada';
+                } else {
+                    compensationStatus = 'Distúrbio metabólico concomitante';
+                }
+            } else {
+                expectedHco3 = 'Não aplicável';
+                compensationStatus = 'Sem alteração respiratória primária';
+            }
+            
+            // 5. Cálculo da PaO2 esperada e relação PaO2/FiO2
+            const expectedPao2 = (fio2 / 100) * (760 - 47) - (pco2 / 0.8);
+            const pao2FiO2Ratio = expectedPao2 / (fio2 / 100);
+            let oxygenationStatus = '';
+            
+            if (pao2FiO2Ratio > 400) {
+                oxygenationStatus = 'Oxigenação normal';
+            } else if (pao2FiO2Ratio > 300) {
+                oxygenationStatus = 'Leve comprometimento da oxigenação';
+            } else if (pao2FiO2Ratio > 200) {
+                oxygenationStatus = 'SDRA leve';
+            } else if (pao2FiO2Ratio > 100) {
+                oxygenationStatus = 'SDRA moderada';
+            } else {
+                oxygenationStatus = 'SDRA grave';
+            }
+            
+            // 6. Correção do pH para temperatura
+            const correctedPh = ph + 0.0147 * (37 - temperature);
+            const correctedPco2 = pco2 * Math.pow(10, 0.019 * (temperature - 37));
+            const correctedHco3 = hco3 * Math.pow(10, 0.0147 * (temperature - 37));
+            
+            // 7. Avaliação de lactato e glicemia
+            let lactateStatus = '';
+            if (lactato < 2.2) {
+                lactateStatus = 'Normal';
+            } else if (lactato < 4.0) {
+                lactateStatus = 'Elevado moderadamente';
+            } else {
+                lactateStatus = 'Elevado significativamente';
+            }
+            
+            let glucoseStatus = '';
+            if (glucose < 70) {
+                glucoseStatus = 'Hipoglicemia';
+            } else if (glucose <= 99) {
+                glucoseStatus = 'Normal';
+            } else if (glucose <= 126) {
+                glucoseStatus = 'Glicemia elevada em jejum';
+            } else {
+                glucoseStatus = 'Hiperglicemia significativa';
+            }
+            
+            // Exibir resultados
+            let resultHTML = `
+                <div class="result-item">
+                    <strong>Estado ácido-base:</strong> <span class="${ph < 7.35 || ph > 7.45 ? 'alert' : 'normal'}">${acidBaseStatus}</span>
+                </div>
+                <div class="result-item">
+                    <strong>Componente respiratório:</strong> ${respiratoryComponent.includes('normal') ? respiratoryComponent : `<span class="${respiratoryComponent.includes('Acidose') ? 'alert' : 'warning'}">${respiratoryComponent}</span>`}
+                </div>
+                <div class="result-item">
+                    <strong>Componente metabólico:</strong> ${metabolicComponent.includes('normal') ? metabolicComponent : `<span class="${metabolicComponent.includes('Acidose') ? 'alert' : 'warning'}">${metabolicComponent}</span>`}
+                </div>
+                <div class="result-item">
+                    <strong>Ânion gap:</strong> ${anionGap.toFixed(1)} (${anionGapInterpretation})
+                </div>
+                <div class="result-item">
+                    <strong>Delta ratio:</strong> ${!isNaN(deltaRatio) ? deltaRatio.toFixed(2) : 'N/A'} (${deltaRatioInterpretation})
+                </div>
+                <div class="result-item">
+                    <strong>HCO₃⁻ esperado para compensação:</strong> ${expectedHco3}
+                </div>
+                <div class="result-item">
+                    <strong>Status de compensação:</strong> ${compensationStatus.includes('adequada') ? `<span class="normal">${compensationStatus}</span>` : `<span class="alert">${compensationStatus}</span>`}
+                </div>
+                <div class="result-item">
+                    <strong>PaO₂ esperada:</strong> ${expectedPao2.toFixed(1)} mmHg
+                </div>
+                <div class="result-item">
+                    <strong>Relação PaO₂/FiO₂:</strong> ${pao2FiO2Ratio.toFixed(1)} (${oxygenationStatus})
+                </div>
+                <div class="result-item">
+                    <strong>Valores corrigidos para temperatura (${temperature}°C):</strong> pH = ${correctedPh.toFixed(2)}, PaCO₂ = ${correctedPco2.toFixed(1)} mmHg, HCO₃⁻ = ${correctedHco3.toFixed(1)} mEq/L
+                </div>
+                <div class="result-item">
+                    <strong>Lactato:</strong> <span class="${lactato > 2.2 ? (lactato > 4.0 ? 'alert' : 'warning') : 'normal'}">${lactato} mmol/L (${lactateStatus})</span>
+                </div>
+                <div class="result-item">
+                    <strong>Glicemia:</strong> <span class="${glucose < 70 || glucose > 126 ? 'alert' : (glucose > 99 ? 'warning' : 'normal')}">${glucose} mg/dL (${glucoseStatus})</span>
+                </div>
+            `;
+            
+            document.getElementById('result-content').innerHTML = resultHTML;
+            
+            // Interpretação clínica
+            let interpretationHTML = '';
+            
+            // Interpretação primária
+            if (acidBaseStatus.includes('Acidemia')) {
+                interpretationHTML += `<p>O paciente apresenta <strong>acidemia</strong>. `;
+                
+                if (respiratoryComponent.includes('Acidose respiratória') && metabolicComponent.includes('Acidose metabólica')) {
+                    interpretationHTML += `Há evidência de <strong>distúrbio misto</strong> com acidose respiratória e metabólica. `;
+                    interpretationHTML += `Esta combinação pode ocorrer em parada cardiorrespiratória, intoxicações graves ou falência múltipla de órgãos.`;
+                } else if (respiratoryComponent.includes('Acidose respiratória')) {
+                    interpretationHTML += `O distúrbio primário é uma <strong>acidose respiratória</strong>, sugerindo hipoventilação alveolar. `;
+                    interpretationHTML += `Causas podem incluir DPOC exacerbada, depressão do SNC, ou fraqueza muscular.`;
+                } else if (metabolicComponent.includes('Acidose metabólica')) {
+                    interpretationHTML += `O distúrbio primário é uma <strong>acidose metabólica</strong>. `;
+                    
+                    if (anionGap > 12) {
+                        interpretationHTML += `Com <strong>ânion gap elevado</strong>, sugerindo acidose por ganho de ácidos. `;
+                        interpretationHTML += `Causas incluem cetoacidose, acidose lática, intoxicações ou insuficiência renal.`;
+                        
+                        if (lactato > 2.2) {
+                            interpretationHTML += ` <strong>O lactato elevado</strong> (${lactato} mmol/L) sugere hipoperfusão tecidual ou hipóxia.`;
+                        }
+                    } else {
+                        interpretationHTML += `Com <strong>ânion gap normal</strong>, sugerindo perda de bicarbonato. `;
+                        interpretationHTML += `Causas incluem diarreia, acidose tubular renal ou uso de inibidores da anidrase carbônica.`;
+                    }
+                }
+            } else if (acidBaseStatus.includes('Alcalemia')) {
+                interpretationHTML += `<p>O paciente apresenta <strong>alcalemia</strong>. `;
+                
+                if (respiratoryComponent.includes('Alcalose respiratória') && metabolicComponent.includes('Alcalose metabólica')) {
+                    interpretationHTML += `Há evidência de <strong>distúrbio misto</strong> com alcalose respiratória e metabólica. `;
+                    interpretationHTML += `Esta combinação pode ocorrer em pacientes com vômitos prolongados e hiperventilação.`;
+                } else if (respiratoryComponent.includes('Alcalose respiratória')) {
+                    interpretationHTML += `O distúrbio primário é uma <strong>alcalose respiratória</strong>, sugerindo hiperventilação alveolar. `;
+                    interpretationHTML += `Causas podem incluir ansiedade, dor, hipóxia, sepse ou estimulação central.`;
+                } else if (metabolicComponent.includes('Alcalose metabólica')) {
+                    interpretationHTML += `O distúrbio primário é uma <strong>alcalose metabólica</strong>. `;
+                    interpretationHTML += `Causas incluem perda de ácido gástrico (vômitos), diuréticos ou excesso de bicarbonato.`;
+                }
+            } else {
+                interpretationHTML += `<p>O pH está dentro da faixa normal, mas isso não exclui a possibilidade de distúrbios compensados. `;
+                
+                if (!respiratoryComponent.includes('normal') || !metabolicComponent.includes('normal')) {
+                    interpretationHTML += `Há evidência de distúrbios compensados ou mistos que estão mantendo o pH normal.`;
+                } else {
+                    interpretationHTML += `Não há evidência de distúrbios ácido-base significativos.`;
+                }
+            }
+            
+            // Adicionar considerações sobre oxigenação
+            interpretationHTML += `</p><p><strong>Oxigenação:</strong> ${oxygenationStatus}. `;
+            if (pao2FiO2Ratio <= 300) {
+                interpretationHTML += `A relação PaO₂/FiO₂ reduzida sugere comprometimento da troca gasosa, possivelmente devido a edema pulmonar, pneumonia ou SDRA.`;
+            }
+            
+            // Adicionar considerações sobre glicemia
+            interpretationHTML += `</p><p><strong>Glicemia:</strong> ${glucoseStatus}. `;
+            if (glucose < 70) {
+                interpretationHTML += `Hipoglicemia pode contribuir para alterações neurológicas e deve ser corrigida.`;
+            } else if (glucose > 126) {
+                interpretationHTML += `Hiperglicemia pode agravar desidratação e distúrbios metabólicos.`;
+            }
+            
+            document.getElementById('interpretation-content').innerHTML = interpretationHTML;
+            
+            // Mostrar resultados
+            document.getElementById('results').style.display = 'block';
+        });
+    </script>
+</body>
+</html>
